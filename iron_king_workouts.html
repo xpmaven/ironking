@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iron King — Workout Reference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --dark: #0D0D0D;
+    --dark2: #161616;
+    --dark3: #1F1F1F;
+    --dark4: #2A2A2A;
+    --text: #E8E4DC;
+    --text-muted: #888;
+    --red: #C0392B;
+    --green: #27AE60;
+    --blue: #2980B9;
+    --purple: #8E44AD;
+    --orange: #E67E22;
+    --teal: #16A085;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--dark2);
+    border-bottom: 2px solid var(--gold);
+    padding: 20px 24px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 4px;
+    color: var(--gold);
+  }
+
+  header p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 24px 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .day-card {
+    background: var(--dark2);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--dark4);
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .day-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--gold);
+  }
+
+  .day-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .day-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+  }
+
+  .day-type {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+
+  .day-badge {
+    font-size: 0.65rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .chevron {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+  }
+
+  .day-card.open .chevron {
+    transform: rotate(180deg);
+  }
+
+  .day-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--dark4);
+  }
+
+  .day-card.open .day-body {
+    display: block;
+  }
+
+  .section-title {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 16px 0 10px;
+  }
+
+  .exercise-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--dark3);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border-left: 3px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .exercise-row:hover {
+    border-left-color: var(--gold);
+  }
+
+  .exercise-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .exercise-detail {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .sets-reps {
+    font-size: 0.75rem;
+    color: var(--gold);
+    font-weight: 600;
+    white-space: nowrap;
+    margin-left: 12px;
+  }
+
+  .note-box {
+    background: var(--dark3);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin-top: 14px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .note-box strong {
+    color: var(--gold);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Day color themes */
+  .monday .day-header { background: linear-gradient(135deg, #1a0a0a, #2d1010); border-bottom: 1px solid #C0392B33; }
+  .monday .day-label { color: var(--red); }
+  .monday .day-badge { background: #C0392B22; color: var(--red); border: 1px solid #C0392B44; }
+
+  .tuesday .day-header { background: linear-gradient(135deg, #0a0f1a, #101a2d); border-bottom: 1px solid #2980B933; }
+  .tuesday .day-label { color: var(--blue); }
+  .tuesday .day-badge { background: #2980B922; color: var(--blue); border: 1px solid #2980B944; }
+
+  .wednesday .day-header { background: linear-gradient(135deg, #0a1a0a, #102d10); border-bottom: 1px solid #27AE6033; }
+  .wednesday .day-label { color: var(--green); }
+  .wednesday .day-badge { background: #27AE6022; color: var(--green); border: 1px solid #27AE6044; }
+
+  .thursday .day-header { background: linear-gradient(135deg, #1a0a1a, #2d102d); border-bottom: 1px solid #8E44AD33; }
+  .thursday .day-label { color: var(--purple); }
+  .thursday .day-badge { background: #8E44AD22; color: var(--purple); border: 1px solid #8E44AD44; }
+
+  .friday .day-header { background: linear-gradient(135deg, #1a0f0a, #2d1a10); border-bottom: 1px solid #E67E2233; }
+  .friday .day-label { color: var(--orange); }
+  .friday .day-badge { background: #E67E2222; color: var(--orange); border: 1px solid #E67E2244; }
+
+  .saturday .day-header { background: linear-gradient(135deg, #0a1a1a, #10292a); border-bottom: 1px solid #16A08533; }
+  .saturday .day-label { color: var(--teal); }
+  .saturday .day-badge { background: #16A08522; color: var(--teal); border: 1px solid #16A08544; }
+
+  .sunday .day-header { background: linear-gradient(135deg, #1a1a0a, #2a2a10); border-bottom: 1px solid #C9A84C33; }
+  .sunday .day-label { color: var(--gold); }
+  .sunday .day-badge { background: #C9A84C22; color: var(--gold); border: 1px solid #C9A84C44; }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-top: 1px solid var(--dark4);
+    margin-top: 8px;
+  }
+
+  footer span {
+    color: var(--gold);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>👑 Iron King</h1>
+  <p>Workout Reference — Steve Willoughby</p>
+</header>
+
+<div class="days-grid">
+
+  <!-- MONDAY -->
+  <div class="day-card monday" onclick="toggle(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-label">Monday</div>
+        <div class="day-type">Pull — Heavy</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="day-badge">Heavy</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="section-title">Warm Up</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Band Pull-Aparts</div><div class="exercise-detail">Scapular activation</div></div>
+        <div class="sets-reps">2 × 15</div>
+      </div>
+
+      <div class="section-title">Main Lifts — In Sequence</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">1. T-Bar Row</div><div class="exercise-detail">Heavy — 3-sec negative, chest to pad</div></div>
+        <div class="sets-reps">4 × 8</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">2. Hammer ISO Lat Pulldown</div><div class="exercise-detail">Unilateral — elbow drive, 3-sec negative</div></div>
+        <div class="sets-reps">3 × 10</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">3. Hammer Low Row</div><div class="exercise-detail">Chest supported — full stretch and squeeze</div></div>
+        <div class="sets-reps">3 × 10</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">4. Lat Pulldown — Wide Bar</div><div class="exercise-detail">Wide grip — elbows flare out and down</div></div>
+        <div class="sets-reps">3 × 10</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">5. Life Fitness Dual Arm Pulldown</div><div class="exercise-detail">Lighter weight — arms silent, wings fly 🔥</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">6. Rear Delt Fly</div><div class="exercise-detail">Machine — finishing move, 3-sec negative</div></div>
+        <div class="sets-reps">3 × 15</div>
+      </div>
+
+      <div class="note-box">
+        <strong>Iron King Cue</strong>
+        Arms are hooks. Drive elbows. 3-second negatives on every rep. Drop ego weight before the dual arm pulldown — that's where the wings fire.
+      </div>
+    </div>
+  </div>
+
+  <!-- TUESDAY -->
+  <div class="day-card tuesday" onclick="toggle(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-label">Tuesday</div>
+        <div class="day-type">Push — Heavy</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="day-badge">Heavy</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="section-title">Shoulder Corrective Protocol (Every Push Day)</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Band External Rotations</div><div class="exercise-detail">90-day protocol</div></div>
+        <div class="sets-reps">3 × 15</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Face Pulls</div><div class="exercise-detail">Cable or band</div></div>
+        <div class="sets-reps">3 × 15</div>
+      </div>
+
+      <div class="section-title">Main Lifts</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Hammer Strength Decline Press</div><div class="exercise-detail">Primary chest — replaces flat bench</div></div>
+        <div class="sets-reps">4 × 8</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Incline Smith Machine</div><div class="exercise-detail">Upper chest, 3-sec negative</div></div>
+        <div class="sets-reps">4 × 8</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Rotary Chest Press</div><div class="exercise-detail">Verizon gym substitute</div></div>
+        <div class="sets-reps">3 × 10</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Cable Chest Fly</div><div class="exercise-detail">Full stretch at extension</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Overhead Press</div><div class="exercise-detail">Machine or Smith</div></div>
+        <div class="sets-reps">3 × 10</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Lateral Raises</div><div class="exercise-detail">Cable or dumbbell</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+
+      <div class="note-box">
+        <strong>Iron King Cue</strong>
+        No flat bench — permanent decision. Shoulder corrective protocol is non-negotiable every push day.
+      </div>
+    </div>
+  </div>
+
+  <!-- WEDNESDAY -->
+  <div class="day-card wednesday" onclick="toggle(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-label">Wednesday</div>
+        <div class="day-type">King Leg Day</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="day-badge">Legs</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="section-title">Main Lifts</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Leg Press</div><div class="exercise-detail">Hoist ROC-IT — 3-sec negative</div></div>
+        <div class="sets-reps">4 × 10</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Leg Extension</div><div class="exercise-detail">Paramount — controlled</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Seated Leg Curl</div><div class="exercise-detail">Paramount — 3-sec negative</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Standing Calf Raise</div><div class="exercise-detail">Full range of motion</div></div>
+        <div class="sets-reps">4 × 15</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Hip Abduction</div><div class="exercise-detail">Machine</div></div>
+        <div class="sets-reps">3 × 15</div>
+      </div>
+
+      <div class="note-box">
+        <strong>Iron King Cue</strong>
+        Right knee — monitor stability. Trust the VMO and quad attachment support building. No ego weight on leg press.
+      </div>
+    </div>
+  </div>
+
+  <!-- THURSDAY -->
+  <div class="day-card thursday" onclick="toggle(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-label">Thursday</div>
+        <div class="day-type">Pull / Push — Volume</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="day-badge">Volume</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="section-title">Shoulder Corrective Protocol</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Band External Rotations</div><div class="exercise-detail">90-day protocol</div></div>
+        <div class="sets-reps">3 × 15</div>
+      </div>
+
+      <div class="section-title">Pull Volume</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Lat Pulldown</div><div class="exercise-detail">Lighter — quality reps</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Seated Cable Row</div><div class="exercise-detail">Elbow drive focus</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Rear Delt Fly</div><div class="exercise-detail">Cable or machine</div></div>
+        <div class="sets-reps">3 × 15</div>
+      </div>
+
+      <div class="section-title">Push Volume</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Incline Smith Machine</div><div class="exercise-detail">Lighter than Tuesday</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Pec Deck</div><div class="exercise-detail">Full stretch, controlled</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Lateral Raises</div><div class="exercise-detail">Dumbbell or cable</div></div>
+        <div class="sets-reps">3 × 15</div>
+      </div>
+
+      <div class="note-box">
+        <strong>Iron King Cue</strong>
+        Volume day — not a heavy day. Quality over load. Mind-muscle connection is the priority.
+      </div>
+    </div>
+  </div>
+
+  <!-- FRIDAY -->
+  <div class="day-card friday" onclick="toggle(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-label">Friday</div>
+        <div class="day-type">Pull — Volume</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="day-badge">✈️ Wings</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="section-title">Volume Sequence — In Order</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">1. T-Bar Row</div><div class="exercise-detail">Volume weight — 3-sec negative</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">2. Hammer ISO Lat Pulldown</div><div class="exercise-detail">Unilateral — feel each side independently</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">3. Hammer Low Row</div><div class="exercise-detail">Chest supported — full stretch and squeeze</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">4. Lat Pulldown — Wide Bar</div><div class="exercise-detail">Wide grip — elbows flare out and down</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">5. Life Fitness Dual Arm Pulldown</div><div class="exercise-detail">LIGHTER — this is where the wings fired May 30 2026 ✈️🔥</div></div>
+        <div class="sets-reps">3 × 12</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">6. Rear Delt Fly</div><div class="exercise-detail">Machine — finishing move, 3-sec negative</div></div>
+        <div class="sets-reps">3 × 15</div>
+      </div>
+
+      <div class="note-box">
+        <strong>The Recipe</strong>
+        Same sequence every Friday. Fatigue the arms through the sequence so they back off on the dual pulldown. Let the lats take over. Arms silent — wings fly.
+      </div>
+    </div>
+  </div>
+
+  <!-- SATURDAY -->
+  <div class="day-card saturday" onclick="toggle(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-label">Saturday</div>
+        <div class="day-type">Savage Saturday — Arms</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="day-badge">Arms</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="section-title">Triceps</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Straight Bar Pushdown</div><div class="exercise-detail">Drive elbows down, not hands</div></div>
+        <div class="sets-reps">3 × 8 — 55</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Overhead Rope Extension</div><div class="exercise-detail">Full stretch on long head</div></div>
+        <div class="sets-reps">3 × 12 — 40</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Triceps Extension</div><div class="exercise-detail">Squeeze at full extension</div></div>
+        <div class="sets-reps">3 × 8 — 55</div>
+      </div>
+
+      <div class="section-title">Biceps</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Preacher Curl</div><div class="exercise-detail">Full extension — 3-sec negative</div></div>
+        <div class="sets-reps">3 × 12 — 20</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Hammer Strength Seated Bicep</div><div class="exercise-detail">Incredible stretch — new weapon 🔥</div></div>
+        <div class="sets-reps">3 × 10</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Curl Machine</div><div class="exercise-detail">No momentum — squeeze and control</div></div>
+        <div class="sets-reps">3 × 8 — 55</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Cable Rope Hammer Curls</div><div class="exercise-detail">Pull with outer forearm edge</div></div>
+        <div class="sets-reps">3 × 10 — 50</div>
+      </div>
+
+      <div class="note-box">
+        <strong>New Steve Cue</strong>
+        Not seek and destroy. Surgical. Controlled. 3-sec negatives. Elbows pinned. Quality over ego.
+      </div>
+    </div>
+  </div>
+
+  <!-- SUNDAY -->
+  <div class="day-card sunday" onclick="toggle(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-label">Sunday</div>
+        <div class="day-type">Rest & Recovery</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="day-badge">Rest</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="day-body">
+      <div class="section-title">Active Recovery Options</div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Light Walk</div><div class="exercise-detail">2-3 miles at 3.2mph — flow state zone</div></div>
+        <div class="sets-reps">Optional</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Sauna</div><div class="exercise-detail">20 minutes — anabolic recovery</div></div>
+        <div class="sets-reps">Recommended</div>
+      </div>
+      <div class="exercise-row">
+        <div><div class="exercise-name">Stretching</div><div class="exercise-detail">Focus on lats, chest, legs</div></div>
+        <div class="sets-reps">10-15 min</div>
+      </div>
+
+      <div class="note-box">
+        <strong>Recovery Protocol</strong>
+        170g protein minimum. Hydration. No HIIT on rest day. Flow state appears around 30 min mark in 90-sec bursts at ~97-99 BPM.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  The Iron King Master Plan — <span>Steve Willoughby</span> — 3-Second Negatives on Every Rep 👑
+</footer>
+
+<script>
+  function toggle(card) {
+    card.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
