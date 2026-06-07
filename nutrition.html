@@ -105,6 +105,66 @@
     margin-top: 2px;
   }
 
+  /* WATER TRACKER */
+  .water-section {
+    margin-top: 14px;
+    border-top: 1px solid var(--dark4);
+    padding-top: 14px;
+  }
+
+  .water-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .water-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .water-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+  }
+
+  .water-count.hit { color: var(--blue); }
+  .water-count.under { color: var(--text-muted); }
+
+  .water-cups {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .water-cup {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid var(--dark4);
+    background: var(--dark3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+  }
+
+  .water-cup.filled {
+    background: #1a3a5c;
+    border-color: #2980B9;
+  }
+
+  .water-cup:hover {
+    border-color: var(--blue);
+    transform: scale(1.1);
+  }
+
   /* DAILY SUMMARY */
   .summary-card {
     background: var(--dark2);
@@ -684,6 +744,14 @@
       <label>Daily Note — Energy, how you felt, what Michelle cooked</label>
       <textarea id="dailyNote" placeholder="e.g. Hit protein, felt strong, Michelle made chicken parm..." onchange="saveNote()"></textarea>
     </div>
+
+    <div class="water-section">
+      <div class="water-header">
+        <span class="water-label">💧 Water — Target: 1 Gallon (16 cups)</span>
+        <span class="water-count under" id="waterCount">0 / 16</span>
+      </div>
+      <div class="water-cups" id="waterCups"></div>
+    </div>
   </div>
 
   <!-- ADD FOOD -->
@@ -876,6 +944,44 @@
     localStorage.setItem('ik_favorites', JSON.stringify(favs));
   }
 
+  // WATER
+  function getWater() {
+    const data = getData();
+    return (data[currentDateKey] && data[currentDateKey].water) || 0;
+  }
+
+  function setWater(cups) {
+    const data = getData();
+    if (!data[currentDateKey]) data[currentDateKey] = { meals: {}, note: '', water: 0 };
+    data[currentDateKey].water = cups;
+    localStorage.setItem('ik_nutrition', JSON.stringify(data));
+    renderWater();
+  }
+
+  function toggleWater(index) {
+    const current = getWater();
+    // If clicking the current last filled cup, unfill it. Otherwise fill up to that cup.
+    const newVal = index + 1 === current ? index : index + 1;
+    setWater(newVal);
+  }
+
+  function renderWater() {
+    const cups = getWater();
+    const target = 16;
+    const container = document.getElementById('waterCups');
+    const countEl = document.getElementById('waterCount');
+
+    let html = '';
+    for (let i = 0; i < target; i++) {
+      const filled = i < cups;
+      html += `<div class="water-cup ${filled ? 'filled' : ''}" onclick="toggleWater(${i})">💧</div>`;
+    }
+    container.innerHTML = html;
+
+    countEl.textContent = `${cups} / ${target}`;
+    countEl.className = `water-count ${cups >= target ? 'hit' : 'under'}`;
+  }
+
   // ACTIONS
   function selectMeal(meal, el) {
     selectedMeal = meal;
@@ -1024,6 +1130,7 @@
     // Food log
     renderFoodLog(dayData);
     renderFavorites();
+    renderWater();
     renderWeekChart();
   }
 
