@@ -812,7 +812,7 @@
 <script>
   const PROTEIN_TARGET = 170;
   const MEALS = ['Breakfast', 'Pre-Workout', 'Post-Workout', 'Lunch', 'Dinner', 'Snack'];
-  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyluDQawYLPdRDd-n0HVB2AZ_JeWtTchFdcBQIV10LE0bwtGGLU1DOuAJVHedGMkM_kVw/exec';
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx7_dGQtNcV7izPIfRCas7QV1Aws44dKCZNkMZZJEmtMWUF3t9zXN0OT64Yr7E5FN4xaQ/exec';
 
   let currentDateKey = getTodayKey();
   let selectedMeal = 'Breakfast';
@@ -838,26 +838,36 @@
       showSyncStatus('syncing');
       const res = await fetch(`${SHEETS_URL}?date=${dateKey}`);
       const json = await res.json();
-      if (json.status === 'ok' && json.data.length > 0) {
+      if (json.status === 'ok') {
         // Merge sheet data into localStorage
         const data = getData();
-        if (!data[dateKey]) data[dateKey] = { meals: {}, note: '' };
+        if (!data[dateKey]) data[dateKey] = { meals: {}, note: '', water: 0 };
         MEALS.forEach(m => { if (!data[dateKey].meals[m]) data[dateKey].meals[m] = []; });
 
-        // Clear existing and rebuild from sheet
-        MEALS.forEach(m => { data[dateKey].meals[m] = []; });
-        json.data.forEach(row => {
-          if (MEALS.includes(row.meal)) {
-            data[dateKey].meals[row.meal].push({
-              name: row.food,
-              protein: parseFloat(row.protein) || 0,
-              calories: parseFloat(row.calories) || 0,
-              note: row.note || '',
-              id: Date.now() + Math.random()
-            });
-          }
-          if (row.note) data[dateKey].note = row.note;
-        });
+        if (json.data.length > 0) {
+          // Clear existing and rebuild from sheet
+          MEALS.forEach(m => { data[dateKey].meals[m] = []; });
+          json.data.forEach(row => {
+            if (MEALS.includes(row.meal)) {
+              data[dateKey].meals[row.meal].push({
+                name: row.food,
+                protein: parseFloat(row.protein) || 0,
+                calories: parseFloat(row.calories) || 0,
+                note: row.note || '',
+                id: Date.now() + Math.random()
+              });
+            }
+            if (row.note) data[dateKey].note = row.note;
+            if (row.water !== undefined && row.water !== '') {
+              data[dateKey].water = parseInt(row.water) || 0;
+            }
+          });
+        }
+
+        // Pull top-level water field
+        if (json.water !== undefined) {
+          data[dateKey].water = parseInt(json.water) || 0;
+        }
 
         localStorage.setItem('ik_nutrition', JSON.stringify(data));
         render();
@@ -955,6 +965,8 @@
     if (!data[currentDateKey]) data[currentDateKey] = { meals: {}, note: '', water: 0 };
     data[currentDateKey].water = cups;
     localStorage.setItem('ik_nutrition', JSON.stringify(data));
+    // Push water to Sheets
+    pushToSheets('updateWater', { date: currentDateKey, water: cups });
     renderWater();
   }
 
